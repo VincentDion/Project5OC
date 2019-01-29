@@ -18,7 +18,8 @@ cursor.execute("""
 	category_id INT UNSIGNED NOT NULL,
 	nutrition_grade CHAR(1),
 	unique_scan_n INT UNSIGNED,
-	stores VARCHAR (100)
+	stores VARCHAR (100),
+	quantity VARCHAR(100)
 	);
 	""")
 
@@ -43,6 +44,18 @@ cursor.execute("""
 	""")
 
 connection.commit()
+
+cursor.execute("""
+	CREATE INDEX ind_code_research
+	ON History(code_research);
+	""")
+
+connection.commit()
+
+cursor.execute("""
+	CREATE INDEX ind_code_results
+	ON History(code_results);
+	""")
 
 connection.close()
 

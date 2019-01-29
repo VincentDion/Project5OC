@@ -5,7 +5,7 @@ from constants import *
 import json
 import requests
 
-def insertProductInTable(codes, names, brands, category_id, grades, unique_scans_n, stores):
+def insertProductInTable(codes, names, brands, category_id, grades, unique_scans_n, stores, quantity):
     
     connection = pymysql.connect(host='localhost',
                                  user='testp5',
@@ -17,9 +17,9 @@ def insertProductInTable(codes, names, brands, category_id, grades, unique_scans
     cursor = connection.cursor()
 
     sql_insert_query = """ INSERT INTO `Products`
-                      VALUES (%s,%s,%s,%s,%s,%s,%s)"""
+                      VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"""
 
-    insert_tuple = (codes, names, brands, category_id, grades, unique_scans_n, stores)
+    insert_tuple = (codes, names, brands, category_id, grades, unique_scans_n, stores, quantity)
 
     result  = cursor.execute(sql_insert_query, insert_tuple)
 
@@ -66,79 +66,6 @@ for key in id_category_name_dict.keys():
 
 
 
-"""
-#### BELOW THE CODE FOR PRODUCTS INSERTION ####
-
-
-
-r = requests.get(url='https://fr.openfoodfacts.org/cgi/search.pl?tagtype_0=categories&tag_contains_0=contains&tag_0=fromage&sort_by=unique_scans_n&page_size=10&action=process&json=1')
-#print(type(r.json()))
-
-
-data_dict = r.json()
-data = data_dict.get("products")
-
-i = 0
-while i < len(data) :
-    sub_data = data[i]
-    codes = sub_data.get("code")
-    names = sub_data.get("product_name_fr")
-    brands = sub_data.get("brands")
-    grades = sub_data.get("nutrition_grade_fr")
-    stores = sub_data.get("stores")
-    category_id = 10
-    if stores == "":
-        stores = "non renseigné"
-    else:
-        pass
-    unique_scans_n = sub_data.get("unique_scans_n")
-    # On récupère le code, le nom français et la note nutritive (et tous les autres trucs) de chaque produit
-    if grades != None :
-        insertProductInTable(codes, names, brands, category_id, grades, unique_scans_n, stores)
-        i = i + 1
-    else :
-        i = i + 1
-        # Si le produit n'a pas de note nutritive, on ne le récupère pas
-
-## A partir du fichier json transformé en dico, je demande la valeur de la clé "products"
-## Cette valeur est une liste
-## Chaque valeurs de cette liste est un dico, donc j'itère sur la liste pour chercher
-## dans chaque dico la valeur associée à la clé "code"
-
-
-r = requests.get(url='https://fr.openfoodfacts.org/cgi/search.pl?tagtype_0=categories&tag_contains_0=contains&tag_0=jus-de-fruit&sort_by=unique_scans_n&page_size=20&action=process&json=1')
-#print(type(r.json()))
-
-
-data_dict = r.json()
-data = data_dict.get("products")
-
-i = 0
-while i < len(data) :
-    sub_data = data[i]
-    codes = sub_data.get("code")
-    names = sub_data.get("product_name_fr")
-    brands = sub_data.get("brands")
-    grades = sub_data.get("nutrition_grade_fr")
-    stores = sub_data.get("stores")
-    category_id = 20
-    if stores == "":
-        stores = "non renseigné"
-    else:
-        pass
-    unique_scans_n = sub_data.get("unique_scans_n")
-
-    if grades != None and "’" not in names:
-        insertProductInTable(codes, names, brands, category_id, grades, unique_scans_n, stores)
-        i = i + 1
-    else :
-        i = i + 1
-        # Si le produit n'a pas de note nutritive, on ne le récupère pas
-
-## Doublement du code plus haut pour ajouter les jus de fruit en attendant de mettre tout sous fonctions
-"""
-
-
 """ BELOW THE CODE FOR COMPLETE PRODUCT INSERTION """
 
 for key in id_category_name_dict.keys():
@@ -165,6 +92,7 @@ for key in id_category_name_dict.keys():
             brands = sub_data.get("brands")
             grades = sub_data.get("nutrition_grade_fr")
             stores = sub_data.get("stores")
+            quantity = sub_data.get("quantity")
             category_id = key
             if stores == "":
                 stores = "non renseigné"
@@ -172,12 +100,16 @@ for key in id_category_name_dict.keys():
                 pass
             unique_scans_n = sub_data.get("unique_scans_n")
 
-            if grades != None and "’" not in names and names != "":
-                insertProductInTable(codes, names, brands, category_id, grades, unique_scans_n, stores)
-                i = i + 1
-            else :
-                i = i + 1
-                # Si le produit n'a pas de note nutritive ou contient des signes mal reconnus, on ne le récupère pas
+            try:
+                if grades != None and "’" not in names and "€" not in names and names != "":
+                    insertProductInTable(codes, names, brands, category_id, grades, unique_scans_n, stores, quantity)
+                    i = i + 1
+                else :
+                    i = i + 1
+                    # Si le produit n'a pas de note nutritive ou contient des signes mal reconnus, on ne le récupère pas
+            except TypeError:
+                i += 1
+                #En cas de TypeError, on n'ajoute pas le produit, ça pouvait arriver avec des caractères spéciaux mal reconnus
 
-    print("Catégorie", category_tuple[1], "insérée avec succès dans la base de données")
+    print("Produits de la catégorie", category_tuple[1], "insérée avec succès dans la base de données")
 
