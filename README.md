@@ -4,12 +4,12 @@ Repository for the 5th project of Open Classrooms (PYTHON) with OpenFood Facts
 Goal of this project is to have the user select a food product and the programm will find a replacement product with a higher nutritive score according to the French "Open Food Fact" database (https://fr.openfoodfacts.org/). The program also allow the user to save the result of the research to access it later on, even after the programm being previously closed. Code is written for Python 3.
 
 
-VERSION 1.0
+# VERSION 1.0
 
 At last the code is fully functionnal, all functionnalities required by the exercice are implemented.
 
 
-HOW TO LAUNCH THE APPLICATION :
+# HOW TO LAUNCH THE APPLICATION :
 
 To test the existing code, please follow these instructions :
 
@@ -24,7 +24,7 @@ To test the existing code, please follow these instructions :
 5) run the file : PurBeurreApplication.py => This is the main file of the script. Once the database is created and filled with products (points 1) to 4)), only this script has to be launched.
 
 
-FUTURE IMPROVEMENTS :
+# FUTURE IMPROVEMENTS :
 
 Although all functionnalities are to remain unchanged, many changes has to be made for the programm to be in complete accordance with the requirements for the exercice :
 
@@ -35,6 +35,6 @@ Although all functionnalities are to remain unchanged, many changes has to be ma
 - README guide for future dev purposes (naming convention for variables etc...)
 
 
-NO OOP SCHEDULED :
+# NO OOP SCHEDULED :
 
 Code could be using a lot more of Object Oriented Programming methods, but I feel I have enough of it so far, it's been too long I'm stuck on it, better move on and go back at it another time.

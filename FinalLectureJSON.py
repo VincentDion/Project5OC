@@ -1,12 +1,22 @@
 # -*- coding: Utf-8 -*
 
-import pymysql
-from constants import *
 import json
+
+import pymysql
 import requests
 
-def insertProductInTable(codes, names, brands, category_id, grades, unique_scans_n, stores, quantity):
-    
+from constants import *
+
+
+def insert_product_in_table(codes, names, brands, category_id,
+                            grades, unique_scans_n, stores, quantity):
+    """Function to add a product in its designated table.
+
+    The tuple of values we insert is obtain by extracting the data from a json file from
+    the Open Food Facts database.
+
+    """
+
     connection = pymysql.connect(host='localhost',
                                  user='testp5',
                                  password='123456',
@@ -21,17 +31,21 @@ def insertProductInTable(codes, names, brands, category_id, grades, unique_scans
 
     insert_tuple = (codes, names, brands, category_id, grades, unique_scans_n, stores, quantity)
 
-    result  = cursor.execute(sql_insert_query, insert_tuple)
+    result = cursor.execute(sql_insert_query, insert_tuple)
 
     connection.commit()
-
-    #print ("Record inserted successfully into Products table")
 
     connection.close()
 
 
-def insertCategoryInTable(category_id, category_url_name, category_correct_name):
-    
+def insert_category_in_table(category_id, category_url_name, category_correct_name):
+    """ Function to add a category in its designated table.
+
+    Categories we insert are from a constant dictionnary containing
+    all the values necessary.
+
+    """
+
     connection = pymysql.connect(host='localhost',
                                  user='testp5',
                                  password='123456',
@@ -46,46 +60,57 @@ def insertCategoryInTable(category_id, category_url_name, category_correct_name)
 
     insert_category_tuple = (category_id, category_url_name, category_correct_name)
 
-    result_category  = cursor.execute(sql_insert_category_query, insert_category_tuple)
+    result_category = cursor.execute(sql_insert_category_query, insert_category_tuple)
 
     connection.commit()
 
-    print ("Record inserted successfully into Categories table")
+    print ("Catégories insérée avec succès dans la base de données")
 
     connection.close()
 
 
-#### BELOW THE CODE FOR CATEGORY INSERTION #####
+"""Below the code for category insertion.
 
-for key in id_category_name_dict.keys():
+Categories' values can be find in the constants.py file.
+
+"""
+for key in ID_CATEGORY_NAME_DICT.keys():
     category_id = key
-    category_tuple = id_category_name_dict.get(key)
+    category_tuple = ID_CATEGORY_NAME_DICT.get(key)
     category_url_name = category_tuple[0]
     category_correct_name = category_tuple[1]
-    insertCategoryInTable(category_id, category_url_name, category_correct_name)
+    insert_category_in_table(category_id, category_url_name, category_correct_name)
 
 
+"""Below the code for product insertion.
 
-""" BELOW THE CODE FOR COMPLETE PRODUCT INSERTION """
+First we only look for the child category product (first condition) to avoid double insertion.
+We then create the url by adding the url category name and the number of products we want to extract.
+Those to info can be modified in the constants.py file.
+The URL return a json with products sorted by 'popularity' (e.g. number of unique scans)
+We go through this file to obtain the elements we need for the Product table.
 
-for key in id_category_name_dict.keys():
-    category_tuple = id_category_name_dict.get(key)
+"""
+for key in ID_CATEGORY_NAME_DICT.keys():
+    category_tuple = ID_CATEGORY_NAME_DICT.get(key)
     category_url_name = category_tuple[0]
-    if key%10 == 0:
+    if key % 10 == 0:
+        # We do not take the parent category, only child ones
         pass
-        #On ne veut pas prendre les catégories mères (ex jus de fruit), juste celles d'en dessous pour éviter les doublons
+
     else:
 
-        #On parcourt la liste des clés et on récupère le nom URL friendly de chaque valeur
+        # We create the url by adding the URL name of categories and the number of results.
+        # Products are sorted by popularity (number of unique scans)
         research_url = 'https://fr.openfoodfacts.org/cgi/search.pl?tagtype_0=categories&tag_contains_0=contains&tag_0=%s&sort_by=unique_scans_n&page_size=%s&action=process&json=1' \
-        % (category_url_name, number_of_collected_products_by_category)
-        
+                        % (category_url_name, NUMBER_OF_COLLECTED_PRODUCTS_BY_CATEGORY)
+
         r = requests.get(url=research_url)
         data_dict = r.json()
         data = data_dict.get("products")
 
         i = 0
-        while i < len(data) :
+        while i < len(data):
             sub_data = data[i]
             codes = sub_data.get("code")
             names = sub_data.get("product_name_fr")
@@ -101,15 +126,15 @@ for key in id_category_name_dict.keys():
             unique_scans_n = sub_data.get("unique_scans_n")
 
             try:
-                if grades != None and "’" not in names and "€" not in names and names != "":
-                    insertProductInTable(codes, names, brands, category_id, grades, unique_scans_n, stores, quantity)
+                if grades is not None and "’" not in names and "€" not in names and names != "":
+                    # I encountered some troubles with some special characters, so I decided to pass on them
+                    insert_product_in_table(codes, names, brands, category_id, grades, unique_scans_n, stores, quantity)
                     i = i + 1
-                else :
+                else:
                     i = i + 1
-                    # Si le produit n'a pas de note nutritive ou contient des signes mal reconnus, on ne le récupère pas
+
+            # We also pass on any TypeError
             except TypeError:
                 i += 1
-                #En cas de TypeError, on n'ajoute pas le produit, ça pouvait arriver avec des caractères spéciaux mal reconnus
 
     print("Produits de la catégorie", category_tuple[1], "insérée avec succès dans la base de données")
-
