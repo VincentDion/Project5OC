@@ -6,7 +6,6 @@ import pymysql
 
 from constants import *
 
-
 # Function to clear the terminal, I do not understand lambda stuff right now but it works
 clear = lambda: os.system('cls')
 

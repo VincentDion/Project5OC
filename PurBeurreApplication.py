@@ -6,6 +6,7 @@ import pymysql
 
 from constants import *
 from classes import *
+from functions import *
 
 
 # Function to clear the terminal, I do not understand lambda stuff right now but it works
@@ -115,33 +116,6 @@ et sauvegardez votre résultat pour remplir l'historique\n")
             name_cat = sub_choice.get("category_correct_name")
             choice = choice + 1
 
-        def display_categories_in_order():
-            """ Function to display the categories on screen.
-
-            The function sorts and display the categories
-            for the user to choose one
-
-            """
-
-            clear()
-            ordered_list = []
-
-            # First loop to sort keys
-            for key in ID_CATEGORY_NAME_DICT.keys():
-                category_id = key
-                ordered_list.append(category_id)
-            ordered_list.sort()
-
-            # Second loop to display the id of categories and their names
-            for key in ordered_list:
-                category_tuple = ID_CATEGORY_NAME_DICT.get(key)
-                category_correct_name = category_tuple[1]
-                category_id = key
-                if key % 10 == 0:
-                    pass
-                else:
-                    print(category_id, "<=>", category_correct_name)
-
         # Run the function for the user to choose a category
         display_categories_in_order()
 
@@ -191,29 +165,8 @@ et sauvegardez votre résultat pour remplir l'historique\n")
         # Variable to display on which page the user is
         index_page = 1
 
-        def display_products_per_page(NUMBER_PRODUCTS_PER_PAGE, index_page):
-            """ Display a certain number of products on screen."""
-
-            clear()
-            start_counter = (index_page - 1) * NUMBER_PRODUCTS_PER_PAGE
-            counter = 0
-            while counter < NUMBER_PRODUCTS_PER_PAGE and start_counter <= len(response):
-                try:
-                    if start_counter < len(products_list):
-                        print(products_list[start_counter][0], "<=>", products_list[start_counter][1],
-                              products_list[start_counter][4], "(marque(s) :", products_list[start_counter][3], ")")
-                        counter += 1
-                        start_counter += 1
-                    else:
-                        counter += 1
-                        start_counter += 1
-                except UnicodeEncodeError:
-                    counter += 1
-                    start_counter += 1
-            print("\n\t [p] <== Page Précédente /", "page", index_page, "/ Page Suivante ==> [s] \n")
-
         # Run of the function with a constant from constants.py file
-        display_products_per_page(NUMBER_PRODUCTS_PER_PAGE, index_page)
+        display_products_per_page(products_list, NUMBER_PRODUCTS_PER_PAGE, index_page)
 
         user_choice = 0
         run_loop_product_selection = 0
@@ -227,7 +180,7 @@ et sauvegardez votre résultat pour remplir l'historique\n")
                     print("Vous êtes déjà sur la première page\n")
                 else:
                     index_page -= 1
-                    display_products_per_page(NUMBER_PRODUCTS_PER_PAGE, index_page)
+                    utils_pba.functions.display_products_per_page(products_list, NUMBER_PRODUCTS_PER_PAGE, index_page)
             # s for next page
             elif user_choice == "s":
                 # We check here if user is on last page
@@ -235,7 +188,7 @@ et sauvegardez votre résultat pour remplir l'historique\n")
                     print("Vous êtes sur la dernière page\n")
                 else:
                     index_page += 1
-                    display_products_per_page(NUMBER_PRODUCTS_PER_PAGE, index_page)
+                    utils_pba.functions.display_products_per_page(products_list, NUMBER_PRODUCTS_PER_PAGE, index_page)
             elif user_choice == "quit":
                 exit()
             else:
