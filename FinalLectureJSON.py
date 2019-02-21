@@ -7,6 +7,14 @@ import requests
 
 from constants import *
 
+"""
+This file is for the filling of the database
+
+Please read the README file for how to create and fill
+the database for the application
+
+"""
+
 
 def insert_product_in_table(codes, names, brands, category_id,
                             grades, unique_scans_n, stores, quantity):
@@ -26,7 +34,8 @@ def insert_product_in_table(codes, names, brands, category_id,
 
     cursor = connection.cursor()
 
-    sql_insert_query = """ INSERT INTO `Products`
+    sql_insert_query = """ INSERT INTO `Products` 
+                      (code, product_name_fr, brands, category_id, nutrition_grade, unique_scan_n, stores, quantity)
                       VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"""
 
     insert_tuple = (codes, names, brands, category_id, grades, unique_scans_n, stores, quantity)
@@ -86,7 +95,7 @@ for key in ID_CATEGORY_NAME_DICT.keys():
 
 First we only look for the child category product (first condition) to avoid double insertion.
 We then create the url by adding the url category name and the number of products we want to extract.
-Those to info can be modified in the constants.py file.
+Those two info can be modified in the constants.py file.
 The URL return a json with products sorted by 'popularity' (e.g. number of unique scans)
 We go through this file to obtain the elements we need for the Product table.
 

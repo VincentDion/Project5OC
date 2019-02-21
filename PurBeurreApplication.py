@@ -145,7 +145,7 @@ et sauvegardez votre résultat pour remplir l'historique\n")
                     run_loop_categories = 1
 
         # From here we extract from the product table products from selected category
-        sql_product_by_category_query = """SELECT code, product_name_fr, brands, quantity FROM Products WHERE category_id=%s"""
+        sql_product_by_category_query = """SELECT id_product, product_name_fr, brands, quantity FROM Products WHERE category_id=%s"""
         cursor.execute(sql_product_by_category_query, user_cat_choice)
         response = cursor.fetchall()
 
@@ -157,7 +157,7 @@ et sauvegardez votre résultat pour remplir l'historique\n")
             itera = choice + 1
             name_prod = sub_choice.get("product_name_fr")
             brands_prod = sub_choice.get("brands")
-            code_prod = sub_choice.get("code")
+            code_prod = sub_choice.get("id_product")
             quantity_prod = sub_choice.get("quantity")
             products_list.append([itera, name_prod, code_prod, brands_prod, quantity_prod])
             choice = choice + 1
@@ -231,11 +231,11 @@ et sauvegardez votre résultat pour remplir l'historique\n")
                 if user_replacement_validation == "":
                     ChosenProduct.find_better_product_same_category()
                     # If selected product is already the best available
-                    if ChosenProduct.replacement_code == ChosenProduct.code:
+                    if ChosenProduct.replacement_id_product == ChosenProduct.id_product:
                         pass
                     # Else we create a new class product agent to be displayed
                     else:
-                        ReplacementProduct = Product(ChosenProduct.replacement_code)
+                        ReplacementProduct = Product(ChosenProduct.replacement_id_product)
                         ReplacementProduct.show_detailed_product()
                     run_loop_replacement = 1
                 elif user_replacement_validation == "quit":
@@ -249,19 +249,19 @@ Appuyez sur [m] pour même categorie ou [g] pour catégorie générale => ")
                 # User chooses a replacement in same category
                 if user_replacement_choice == "m":
                     ChosenProduct.find_better_product_same_category()
-                    if ChosenProduct.replacement_code == ChosenProduct.code:
+                    if ChosenProduct.replacement_id_product == ChosenProduct.id_product:
                         pass
                     else:
-                        ReplacementProduct = Product(ChosenProduct.replacement_code)
+                        ReplacementProduct = Product(ChosenProduct.replacement_id_product)
                         ReplacementProduct.show_detailed_product()
                     run_loop_replacement = 1
                 # User chooses a replacement in parent category
                 elif user_replacement_choice == "g":
                     ChosenProduct.find_better_product_parent_category()
-                    if ChosenProduct.replacement_code == ChosenProduct.code:
+                    if ChosenProduct.replacement_id_product == ChosenProduct.id_product:
                         pass
                     else:
-                        ReplacementProduct = Product(ChosenProduct.replacement_code)
+                        ReplacementProduct = Product(ChosenProduct.replacement_id_product)
                         ReplacementProduct.show_detailed_product()
                     run_loop_replacement = 1
                 elif user_replacement_choice == "quit":
@@ -277,8 +277,8 @@ Appuyez sur [m] pour même categorie ou [g] pour catégorie générale => ")
 Appuyez sur [s] pour sauvegarder ou [m] pour retourner au menu principal sans sauvegarder => ")
             # User chooses to save the results
             if user_history_choice == "s":
-                sql_insert_history_query = """INSERT INTO History (code_research, code_results) VALUES (%s, %s)"""
-                tuple_history_insert = (ChosenProduct.code, ChosenProduct.replacement_code)
+                sql_insert_history_query = """INSERT INTO History (id_product_research, id_product_results) VALUES (%s, %s)"""
+                tuple_history_insert = (ChosenProduct.id_product, ChosenProduct.replacement_id_product)
                 cursor.execute(sql_insert_history_query, tuple_history_insert)
                 connection.commit()
                 run_loop_history_save = 1

@@ -18,10 +18,10 @@ class Product:
 
     """
 
-    def __init__(self, code):
+    def __init__(self, id_product):
         """Initialization of the class agent.
 
-        From a product code given by the programm, we extract all the data
+        From a product id given by the programm, we extract all the data
         from the product table to easily access by this method all the necessary values.
 
         """
@@ -33,10 +33,11 @@ class Product:
                                      cursorclass=pymysql.cursors.DictCursor)
 
         cursor = connection.cursor()
-        sql_query_for_product = """SELECT code, product_name_fr, brands, category_id, nutrition_grade, stores, unique_scan_n, quantity FROM Products WHERE code=%s"""
-        cursor.execute(sql_query_for_product, code)
+        sql_query_for_product = """SELECT id_product, code, product_name_fr, brands, category_id, nutrition_grade, stores, unique_scan_n, quantity FROM Products WHERE id_product=%s"""
+        cursor.execute(sql_query_for_product, id_product)
         product_details = cursor.fetchone()
 
+        self.id_product = product_details.get("id_product")
         self.code = product_details.get("code")
         self.category_id = product_details.get("category_id")
         self.category_name = ID_CATEGORY_NAME_DICT.get(product_details.get("category_id"))[1]
@@ -96,7 +97,7 @@ class Product:
         if self.nutrition_grade == "a":
             print("Ce produit possède dejà la meilleure note nutritive attribuable")
             # Variable used to create the History table
-            self.replacement_code = self.code
+            self.replacement_id_product = self.id_product
 
         else:
 
@@ -113,7 +114,7 @@ class Product:
 
                 targeted_product_grade = GRADES_RANGE[targeted_product_grade_index]
                 tuple_for_query = (self.category_id, targeted_product_grade)
-                sql_query_for_replacement = """SELECT code, product_name_fr, brands, category_id, nutrition_grade, stores FROM `Products` WHERE category_id = %s AND nutrition_grade = %s"""
+                sql_query_for_replacement = """SELECT id_product, code, product_name_fr, brands, category_id, nutrition_grade, stores FROM `Products` WHERE category_id = %s AND nutrition_grade = %s"""
                 cursor.execute(sql_query_for_replacement, tuple_for_query)
 
                 replacement = cursor.fetchone()
@@ -124,14 +125,14 @@ class Product:
                 else:
                     if targeted_product_grade_index == selected_product_grade_index:
                         print("Il n'y a pas de produit avec une meilleure note dans cette catégorie")
-                        self.replacement_code = self.code
+                        self.replacement_id_product = self.id_product
                     else:
                         print("Le meilleur produit trouvé est le suivant :", replacement.get("product_name_fr"),
                               "avec la note nutritive", replacement.get("nutrition_grade"))
                         # This line to ensure it doesn't check inferior grades, loop stops at the best product available
                         targeted_product_grade_index = len(GRADES_RANGE)
 
-                        self.replacement_code = replacement.get("code")
+                        self.replacement_id_product = replacement.get("id_product")
 
                 targeted_product_grade_index += 1
 
@@ -154,7 +155,7 @@ class Product:
 
         if self.nutrition_grade == "a":
             print("Ce produit possède dejà la meilleure note nutritive attribuable")
-            self.replacement_code = self.code
+            self.replacement_id_product = self.id_product
 
         else:
 
@@ -174,18 +175,18 @@ class Product:
 
                 next_category_id = parent_category_id + 10
                 tuple_for_query = (parent_category_id, next_category_id, targeted_product_grade)
-                sql_query_for_replacement = """SELECT code, product_name_fr, brands, category_id, nutrition_grade, stores FROM `Products` WHERE category_id > %s AND category_id < %s AND nutrition_grade = %s"""
+                sql_query_for_replacement = """SELECT id_product, code, product_name_fr, brands, category_id, nutrition_grade, stores FROM `Products` WHERE category_id > %s AND category_id < %s AND nutrition_grade = %s"""
                 cursor.execute(sql_query_for_replacement, tuple_for_query)
                 replacement = cursor.fetchone()
 
                 if replacement is None:
                     print("Ces catégories ne contiennent aucun produit de note nutritive",
                           targeted_product_grade, "dans la base de données actuelle")
-                    self.replacement_code = self.code
+                    self.replacement_id_product = self.id_product
                 else:
                     if targeted_product_grade_index == selected_product_grade_index:
                         print("Il n'y a pas de produit avec une meilleure note dans ces catégories")
-                        self.replacement_code = self.code
+                        self.replacement_id_product = self.id_product
                     else:
                         print("\nLe meilleur produit trouvé est le suivant :", replacement.get("product_name_fr"),
                               "avec la note nutritive", replacement.get("nutrition_grade"))
@@ -193,7 +194,7 @@ class Product:
                               ID_CATEGORY_NAME_DICT.get(replacement.get("category_id"))[1])
 
                         targeted_product_grade_index = len(GRADES_RANGE)
-                        self.replacement_code = replacement.get("code")
+                        self.replacement_id_product = replacement.get("id_product")
 
                 targeted_product_grade_index += 1
 
@@ -225,12 +226,12 @@ class History:
 
         # Query to get the history table with the correct name of the products from the products table
         cursor.execute("""
-            SELECT History.id_research, Ps.product_name_fr AS search, Pr.product_name_fr AS result, History.code_results AS code
+            SELECT History.id_research, Ps.product_name_fr AS search, Pr.product_name_fr AS result, History.id_product_results AS id_product
             FROM History
             INNER JOIN Products AS Ps
-            ON History.code_research = Ps.code
+            ON History.id_product_research = Ps.id_product
             INNER JOIN Products AS Pr
-            ON History.code_results = Pr.code
+            ON History.id_product_results = Pr.id_product
             ORDER BY History.id_research DESC""")
 
         history = cursor.fetchall()
@@ -242,7 +243,7 @@ class History:
             # itera is the number displayed on the left, indication of which number the user has to press
             name_search = sub_selection.get("search")
             name_result = sub_selection.get("result")
-            code_research = sub_selection.get("code")
+            code_research = sub_selection.get("id_product")
             history_list.append([itera, name_search, name_result, code_research])
             id_selection += 1
         self.history_list = history_list
