@@ -1,7 +1,9 @@
 # Project5OC
-Repository for the 5th project of Open Classrooms (PYTHON) with OpenFood Facts
+Repository for the 5th project of Open Classrooms (PYTHON) with OpenFood Facts.
 
 Goal of this project is to have the user select a food product and the programm will find a replacement product with a higher nutritive score according to the French "Open Food Fact" database (https://fr.openfoodfacts.org/). The program also allow the user to save the result of the research to access it later on, even after the programm being previously closed. Code is written for Python 3.
+
+Application is named "Pur Beurre Application".
 
 
 # VERSION 1.2
@@ -28,6 +30,7 @@ To test the existing code, please follow these instructions :
 - New file in replacement of two previous one for the initialization of the database
 - Requirements.txt file added
 - Adding of foreign keys on the database
+- Branch 1.2 in repository github
 
 
 # FUTURE IMPROVEMENTS :
