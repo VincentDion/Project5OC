@@ -30,6 +30,8 @@ To test the existing code, please follow these instructions :
 - New file in replacement of two previous one for the initialization of the database
 - Requirements.txt file added
 - Adding of foreign keys on the database
+- New folder utils with functions and classes
+- PEP8 optimization
 - Branch 1.2 in repository github
 
 
@@ -38,6 +40,6 @@ To test the existing code, please follow these instructions :
 Although all functionnalities are to remain unchanged, many changes has to be made for the programm to be in complete accordance with the requirements for the exercice :
 
 - PEP8 complete compliance (import * and lines too long to get rid off)
-- Separate functions and classes in another folder
+- Find a way to make the connection a function
 - README guide for future dev purposes (naming convention for variables etc...)
 - User experience : we can always improve user experience
