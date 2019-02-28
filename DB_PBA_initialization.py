@@ -171,7 +171,7 @@ def insert_category_in_table(category_id, category_url_name, category_correct_na
 
     connection.commit()
 
-    print ("Catégories insérée avec succès dans la base de données")
+    print ("Catégorie insérée avec succès dans la base de données")
 
     connection.close()
 
@@ -209,7 +209,8 @@ for key in ID_CATEGORY_NAME_DICT.keys():
 
         # We create the url by adding the URL name of categories and the number of results.
         # Products are sorted by popularity (number of unique scans)
-        research_url = 'https://fr.openfoodfacts.org/cgi/search.pl?tagtype_0=categories&tag_contains_0=contains&tag_0=%s&sort_by=unique_scans_n&page_size=%s&action=process&json=1' \
+        research_url = 'https://fr.openfoodfacts.org/cgi/search.pl?tagtype_0=categories\
+&tag_contains_0=contains&tag_0=%s&sort_by=unique_scans_n&page_size=%s&action=process&json=1' \
                         % (category_url_name, NUMBER_OF_COLLECTED_PRODUCTS_BY_CATEGORY)
 
         r = requests.get(url=research_url)
